@@ -6,5 +6,5 @@ import (
 )
 
 func main()	{
-	fmt.Fprintf(os.Stdout,"%s","this is stdout")
+	fmt.Fprintf(os.Stdout,"%s","This is Stdout")
 }
