@@ -16,7 +16,7 @@ func RowColMultiplier(rowCol chan MatrixRowColPair, val chan MatEl) {
 	pair := <- rowCol
 	sum:=0
 	for i:=0;i<len(pair.RowData);i++ {
-		sum += pair.RowData[i]*pair.ColData[i]
+		sum += int(pair.RowData[i]*pair.ColData[i])
 	}
 	val <- MatEl{pair.Row,pair.Col,sum}
 }
