@@ -12,27 +12,26 @@ func init() {
 	flag.IntVar(&sliceSize,"s",5,"specifies the size of slices to be multiplied")
 }
 
-func RowColMultiplier(row,col chan []int, val chan int) {
-	a := <- row
-	b := <- col
-	sum:=0
-	for i:=0;i<len(a);i++ {
-		sum += a[i]*b[i]
+func RowColMultiplier(rowCol chan MatrixRowColPair, val chan MatEl) {
+	pair := <- rowCol
+	sum:=int32(0)
+	for i:=0;i<len(pair.RowData);i++ {
+		sum += int32(pair.RowData[i]*pair.ColData[i])
 	}
-	val <- sum
+	val <- MatEl{pair.Row,pair.Col,sum}
 }
 
 func main() {//run this to check
 	flag.Parse()// must be called before flags are used
-	a,b := make([]int, sliceSize),make([]int, sliceSize)
+	a,b := make([]int8, sliceSize),make([]int8, sliceSize)
 	fmt.Println("Creating slices of len ", sliceSize)
 	for i:=0;i<sliceSize;i++ {//creating 2 slices containing only 1
 		a[i],b[i]=1,1
 	}
-	row,col := make(chan []int, 1),make(chan []int, 1)
-	res := make(chan int, 1)
-	row <- a
-	col <- b
-	RowColMultiplier(row, col, res)
-	fmt.Println("The result is", <-res)//should be same as length if the slices are multiplied correctly
+	rowCol := make(chan MatrixRowColPair, 1)//channels must be buffered coz the routine that reads them aren't active yet
+	res := make(chan MatEl, 1)
+	rowCol <- MatrixRowColPair{0,0,a,b}
+	RowColMultiplier(rowCol, res)
+	temp := <-res
+	fmt.Println("The result is ", temp)//should be same as length if the slices are multiplied correctly
 }

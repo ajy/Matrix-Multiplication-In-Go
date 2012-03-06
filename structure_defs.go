@@ -12,6 +12,6 @@ type MatrixRowColPair struct {
 }
 
 type MatEl struct {
-	Row,Column int
+	Row,Column int32
 	Element int32
 }
