@@ -6,12 +6,12 @@ type Matrix struct {
 }
 
 type MatrixRowColPair struct {
-    Row,Col int32
+    Row,Col int
     RowData []int8
     ColData []int8
 }
 
 type MatEl struct {
-	Row,Column int32
-	Element int32
+	Row,Column int
+	Element int
 }
