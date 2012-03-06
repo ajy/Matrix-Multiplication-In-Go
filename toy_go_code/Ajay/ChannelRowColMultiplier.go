@@ -16,14 +16,14 @@ func RowColMultiplier(rowCol chan MatrixRowColPair, val chan MatEl) {
 	pair := <- rowCol
 	sum:=0
 	for i:=0;i<len(pair.RowData);i++ {
-		sum += int(pair.RowData[i]*pair.ColData[i])
+		sum += pair.RowData[i]*pair.ColData[i]
 	}
 	val <- MatEl{pair.Row,pair.Col,sum}
 }
 
 func main() {//run this to check
 	flag.Parse()// must be called before flags are used
-	a,b := make([]int8, sliceSize),make([]int8, sliceSize)
+	a,b := make([]int, sliceSize),make([]int, sliceSize)
 	fmt.Println("Creating slices of len ", sliceSize)
 	for i:=0;i<sliceSize;i++ {//creating 2 slices containing only 1
 		a[i],b[i]=1,1

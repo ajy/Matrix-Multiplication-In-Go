@@ -2,13 +2,13 @@ package main
 
 type Matrix struct {
 	Rows,Columns int
-	Data [][]int8
+	Data [][]int
 }
 
 type MatrixRowColPair struct {
     Row,Col int
-    RowData []int8
-    ColData []int8
+    RowData []int
+    ColData []int
 }
 
 type MatEl struct {
