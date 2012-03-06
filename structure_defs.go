@@ -2,7 +2,7 @@ package main
 
 type Matrix struct {
 	Rows,Columns int
-	Data [][]int
+	Data [][]int8
 }
 
 type MatrixRowColPair struct {
