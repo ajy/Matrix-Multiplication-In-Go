@@ -5,7 +5,7 @@ type Matrix struct {
 	Data [][]int
 }
 
-type MatrixRowCol struct {
+type MatrixRowColPair struct {
     Row,Col int32
     RowData []int8
     ColData []int8
