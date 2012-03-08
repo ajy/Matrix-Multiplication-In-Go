@@ -5,4 +5,8 @@
 *.out
 *.6
 *.8
+*.csv
+*.txt
+#makes git ignore folders starting with _ created by make
+_*
 
