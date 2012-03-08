@@ -1,14 +1,16 @@
 package main
 import (
-	"fmt"
+//	"fmt"
 	"flag"
 )
 var mat1 string
 var mat2 string
+var NumWorkers int
 
 func init() {
 	flag.StringVar(&mat1,"mat1","./data1.csv","Path to the CSV data file.")
 	flag.StringVar(&mat2,"mat2","./data2.csv","Path to the CSV data file.")
+	flag.IntVar(&NumWorkers,"workers",5,"number of goroutines doing the work")
 }
 
 
@@ -22,10 +24,10 @@ func main() {
 	rowCol := make(chan MatrixRowColPair)
 	
 	go func() {
-        for i:=0;i<mat1.Rows;i++ {
-                row1 := mat1.GetRow(i)
-                for j:=0;j<mat2.Columns;j++ {
-                        col1 := mat2.GetCol(j)
+        for i:=0;i<mat1.Columns;i++ {
+                col1 := mat2.GetCol(i)//was row1 := mat1.GetRow(i)
+                for j:=0;j<mat2.Rows;j++ {
+                        row1 := mat1.GetRow(j)//was col1 := mat2.GetCol(j)
                         matobj := MatrixRowColPair{i , j,row1 , col1}
                         rowCol <- matobj
                         }
@@ -33,10 +35,10 @@ func main() {
 		close(rowCol)
 	}();
 
-	for i := 0;i < 5;i++ {
+	for i := 0;i < NumWorkers;i++ {
                 go RowColMultiplier(&matres, rowCol,done)
 	}
 	<-done
 	
-	fmt.Println(matres.Data)	
+//	fmt.Println(matres.Data)	
 }
