@@ -24,9 +24,9 @@ func main() {
 	rowCol := make(chan MatrixRowColPair)
 	
 	go func() {
-        for i:=0;i<mat1.Columns;i++ {
+        for i:=0;i<mat2.Columns;i++ {
                 col1 := mat2.GetCol(i)//was row1 := mat1.GetRow(i)
-                for j:=0;j<mat2.Rows;j++ {
+                for j:=0;j<mat1.Rows;j++ {
                         row1 := mat1.GetRow(j)//was col1 := mat2.GetCol(j)
                         matobj := MatrixRowColPair{i , j,row1 , col1}
                         rowCol <- matobj
