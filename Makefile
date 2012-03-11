@@ -1,10 +1,10 @@
-include $(GOROOT)/src/Make.inc
+include ~/go/src/Make.inc
 
-TARG=mypackage
+TARG=matmul
+
 GOFILES=\
-	beta1.go\
 	structure_defs.go\
 	ChannelRowColMultiplier.go\
 	read_csv.go\
 
-include $(GOROOT)/src/Make.pkg
+include ~/go/src/Make.cmd
