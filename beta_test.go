@@ -8,11 +8,11 @@ var mat2 string
 var NumWorkers int
 func Test_Matmul1(t *testing.T) { 
     
-    mat1="./tData10.csv"
-    mat2=mat1
+    mat1="./data1.csv"
+  
     NumWorkers=5
     mat1 := OpenCsv(mat1)
-	mat2 := OpenCsv(mat2)
+	mat2 := mat1
 	
 	//Identity Matrix
 	  for i:=0;i<mat2.Columns;i++ {
@@ -47,7 +47,7 @@ func Test_Matmul1(t *testing.T) {
 	}
 	<-done
 	
-	//To test if the result
+	//To test if the result matches
 	pass:=true
 	 for i:=0;i<matres.Columns;i++ {
                  for j:=0;j<matres.Rows;j++ {
