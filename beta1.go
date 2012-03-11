@@ -15,6 +15,7 @@ func init() {
 
 
 func main() {
+runtime.GOMAXPROCS(4)
     flag.Parse()
     mat1 := OpenCsv(mat1)
 	mat2 := OpenCsv(mat2)
@@ -28,7 +29,7 @@ func main() {
                 col1 := mat2.GetCol(i)//was row1 := mat1.GetRow(i)
                 for j:=0;j<mat1.Rows;j++ {
                         row1 := mat1.GetRow(j)//was col1 := mat2.GetCol(j)
-                        matobj := MatrixRowColPair{i , j,row1 , col1}
+                        matobj := MatrixRowColPair{j , i,row1 , col1}
                         rowCol <- matobj
                         }
         }
