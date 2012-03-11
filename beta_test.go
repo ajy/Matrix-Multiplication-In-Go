@@ -1,15 +1,14 @@
+//Unit Testing
 package main //same package name as source file
 
 import (
     "testing" //import go package for testing related functionality
     )
-var mat1 string
-var mat2 string
-var NumWorkers int
+
 func Test_Matmul1(t *testing.T) { 
     
     mat1="./data1.csv"
-  
+    
     NumWorkers=5
     mat1 := OpenCsv(mat1)
 	mat2 := mat1
