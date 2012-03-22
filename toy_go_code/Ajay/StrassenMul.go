@@ -238,9 +238,9 @@ func main() {
 	}
 
 	fmt.Printf("Execute Standard matmult\n\n")
-	before := time.Seconds()
+	before := time.Nanoseconds()
 	seqMatMult(M, N, P, A, B, C)
-	after := time.Seconds()
+	after := time.Nanoseconds()
 	fmt.Printf("Standard matrix function done in %v ns\n\n\n", (after - before))
 
 	before = time.Nanoseconds()
