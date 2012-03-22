@@ -4,9 +4,15 @@ import (
 	"fmt"
 	"time"
 	"rand"
+	"flag"
 )
 
 const GRAIN int = 1024 /* product size below which matmultleaf is used */
+var MatSize int
+
+func init() {
+	flag.IntVar(&MatSize,"size",1024,"specifies the size of the matrices to be multiplied, must be power of 2")
+}
 
 func seqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
 	for i := 0; i < m; i++ {
@@ -204,9 +210,10 @@ func CheckResults(m, n int, C, C1 [][]int) bool {
 }
 
 func main() {
-	M := 1024 //atoi(argv[1]); 
-	N := 1024 //atoi(argv[2]); 
-	P := 1024 //atoi(argv[3]); 
+	flag.Parse()
+	M := MatSize
+	N := MatSize
+	P := MatSize
 
 	A := Allocate2DArray(M, P)
 	B := Allocate2DArray(P, N)
