@@ -39,7 +39,7 @@ func matmultleaf(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 func copyQtrMatrix(X [][]int, m int, Y [][]int, mf, nf int) {
 	for i := 0; i < m; i++ {
-		X[i] = Y[mf+i][nf:m]
+		X[i] = Y[mf+i][nf:]
 	}
 }
 
@@ -168,10 +168,10 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 func matmultS(m, n, p int, A, B, C [][]int) {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
-			C[i][j] = 0
-			strassenMMult(0, m, 0, n, 0, p, A, B, C)
+			C[i][j] = 0			
 		}
 	}
+	strassenMMult(0, m, 0, n, 0, p, A, B, C)
 }
 
 func CheckResults(m, n int, C, C1 [][]int) bool {
@@ -204,9 +204,9 @@ func CheckResults(m, n int, C, C1 [][]int) bool {
 }
 
 func main() {
-	M := 4 //atoi(argv[1]); 
-	N := 4 //atoi(argv[2]); 
-	P := 4 //atoi(argv[3]); 
+	M := 1024 //atoi(argv[1]); 
+	N := 1024 //atoi(argv[2]); 
+	P := 1024 //atoi(argv[3]); 
 
 	A := Allocate2DArray(M, P)
 	B := Allocate2DArray(P, N)
@@ -221,7 +221,12 @@ func main() {
 
 	for i := 0; i < P; i++ {
 		for j := 0; j < N; j++ {
-			B[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
+			if(i == j) {
+				B[i][j] = 1
+			} else {
+				B[i][j] = 0
+			}
+			//B[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
 		}
 	}
 
@@ -229,12 +234,12 @@ func main() {
 	before := time.Seconds()
 	seqMatMult(M, N, P, A, B, C)
 	after := time.Seconds()
-	fmt.Printf("Standard matrix function done in %v secs\n\n\n", (after - before))
+	fmt.Printf("Standard matrix function done in %v ns\n\n\n", (after - before))
 
 	before = time.Nanoseconds()
 	matmultS(M, N, P, A, B, C4)
 	after = time.Nanoseconds()
-	fmt.Printf("Strassen matrix function done in %v secs\n\n\n", (after - before))
+	fmt.Printf("Strassen matrix function done in %v ns\n\n\n", (after - before))
 
 	if CheckResults(M, N, C, C4) {
 		fmt.Printf("Error in matmultS\n\n")
