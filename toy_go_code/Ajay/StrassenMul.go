@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"time"
-	"rand"
 	"flag"
+	"fmt"
+	"math/rand"
+	"time"
 )
 
-const GRAIN int = 1024 /* product size below which matmultleaf is used */
+const GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
 var MatSize int
 
 func init() {
-	flag.IntVar(&MatSize,"size",1024,"specifies the size of the matrices to be multiplied, must be power of 2")
+	flag.IntVar(&MatSize, "size", 1024, "specifies the size of the matrices to be multiplied, must be power of 2")
 }
 
 func seqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
@@ -27,9 +27,9 @@ func seqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
 
 func matmultleaf(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	/* 
-	subroutine that uses the simple triple loop to multiply 
-	a submatrix from A with a submatrix from B and store the 
-	result in a submatrix of C. 
+		subroutine that uses the simple triple loop to multiply 
+		a submatrix from A with a submatrix from B and store the 
+		result in a submatrix of C. 
 	*/
 	// mf, ml; /* first and last+1 i index */ 
 	// nf, nl; /* first and last+1 j index */ 
@@ -174,7 +174,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 func matmultS(m, n, p int, A, B, C [][]int) {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
-			C[i][j] = 0			
+			C[i][j] = 0
 		}
 	}
 	strassenMMult(0, m, 0, n, 0, p, A, B, C)
@@ -228,7 +228,7 @@ func main() {
 
 	for i := 0; i < P; i++ {
 		for j := 0; j < N; j++ {
-			if(i == j) {
+			if i == j {
 				B[i][j] = 1
 			} else {
 				B[i][j] = 0
@@ -238,15 +238,15 @@ func main() {
 	}
 
 	fmt.Printf("Execute Standard matmult\n\n")
-	before := time.Nanoseconds()
+	before := time.Now()
 	seqMatMult(M, N, P, A, B, C)
-	after := time.Nanoseconds()
-	fmt.Printf("Standard matrix function done in %v ns\n\n\n", (after - before))
+	after := time.Now()
+	fmt.Printf("Standard matrix function done in %v s\n\n\n", after.Sub(before).Seconds())
 
-	before = time.Nanoseconds()
+	before = time.Now()
 	matmultS(M, N, P, A, B, C4)
-	after = time.Nanoseconds()
-	fmt.Printf("Strassen matrix function done in %v ns\n\n\n", (after - before))
+	after = time.Now()
+	fmt.Printf("Strassen matrix function done in %v s\n\n\n", after.Sub(before).Seconds())
 
 	if CheckResults(M, N, C, C4) {
 		fmt.Printf("Error in matmultS\n\n")
@@ -254,4 +254,3 @@ func main() {
 		fmt.Printf("OKAY\n\n")
 	}
 }
-
