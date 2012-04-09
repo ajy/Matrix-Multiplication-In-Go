@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"os"
+	"time"
 	"log"
 )
 var mat1 string
@@ -15,7 +16,6 @@ func init() {
 	flag.StringVar(&mat1,"mat1","./data1.csv","Path to the CSV data file.")
 	flag.StringVar(&mat2,"mat2","./data2.csv","Path to the CSV data file.")
 	flag.IntVar(&NumWorkers,"workers",5,"number of goroutines doing the work")
-
 }
 
 
@@ -42,20 +42,20 @@ defer  pprof.StopCPUProfile() //Happens when main() returns
 pprof.WriteHeapProfile(f2) //Memory profiler
 
 //Reading the matrices from csv files
-    start,sn, _ := os.Time() 
+    start := time.Now() 
     mat1 := OpenCsv(mat1)
 	mat2 := OpenCsv(mat2)
-    end,en, _ := os.Time() 
-	rtime := (((end-start)*1000000000.0)+(en-sn))
-	fmt.Printf("===Time Taken to read Matrices %vns",rtime)
-	fmt.Println()	
+    end := time.Now() 
+	rtime := end.Sub(start)
+	fmt.Printf("===Time Taken to read Matrices %v ns\n",rtime.Nanoseconds())
+	//fmt.Println()	
 	matres := Matrix{mat1.Rows,mat2.Columns,make([][]int,mat1.Rows)}
 	done := make(chan bool)
 	initMatrix(&matres)//matres.initMatrix() make it this way
 	rowCol := make(chan MatrixRowColPair)
 	
 	
-	start,sn, _ = os.Time()
+	start = time.Now()
 	go func() {
         for i:=0;i<mat2.Columns;i++ {
                 col1 := mat2.GetCol(i)//was row1 := mat1.GetRow(i)
@@ -71,13 +71,15 @@ pprof.WriteHeapProfile(f2) //Memory profiler
 	for i := 0;i < NumWorkers;i++ {
                 go RowColMultiplier(&matres, rowCol,done)
 	}
-	<-done
-	end, en, _ = os.Time()	
+	for i := 0;i < NumWorkers;i++ {
+                <-done
+	}
+	end := time.Now()	
 	
-	 mtime := (((end-start)*1000000000.0)+(en-sn))
+	mtime := end.Sub(start)
 	
-	fmt.Printf("===Time taken for multiplication %vns ",mtime)	
+	fmt.Printf("===Time taken for multiplication %v ns ",mtime.Nanoseconds())	
 	fmt.Println()
-	fmt.Printf("===Total time taken %vns ",rtime+mtime)
+	fmt.Printf("===Total time taken %v ns ",(rtime+mtime).Nanoseconds())
 
 }
