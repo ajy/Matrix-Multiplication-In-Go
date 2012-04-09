@@ -14,7 +14,7 @@ var CoreNo int
 
 func init() {
 	flag.IntVar(&MatSize, "size", 1024, "specifies the size of the matrices to be multiplied, must be power of 2")
-	flag.IntVar(&CoreNo, "cores", 1, "specifies the number of cores Go can use to execute this code")
+	flag.IntVar(&CoreNo, "cores", 4, "specifies the number of cores Go can use to execute this code")
 }
 
 func seqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
@@ -83,14 +83,6 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		n2 := (nl - nf) / 2
 		p2 := (pl - pf) / 2
 
-		M1 := Allocate2DArray(m2, n2)
-		M2 := Allocate2DArray(m2, n2)
-		M3 := Allocate2DArray(m2, n2)
-		M4 := Allocate2DArray(m2, n2)
-		M5 := Allocate2DArray(m2, n2)
-		M6 := Allocate2DArray(m2, n2)
-		M7 := Allocate2DArray(m2, n2)
-
 		A11 := make([][]int, m2)
 		A12 := make([][]int, m2)
 		A21 := make([][]int, m2)
@@ -105,17 +97,6 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		C12 := make([][]int, m2)
 		C21 := make([][]int, m2)
 		C22 := make([][]int, m2)
-
-		tAM1 := Allocate2DArray(m2, p2)
-		tBM1 := Allocate2DArray(p2, n2)
-		tAM2 := Allocate2DArray(m2, p2)
-		tBM3 := Allocate2DArray(p2, n2)
-		tBM4 := Allocate2DArray(p2, n2)
-		tAM5 := Allocate2DArray(m2, p2)
-		tAM6 := Allocate2DArray(m2, p2)
-		tBM6 := Allocate2DArray(p2, n2)
-		tAM7 := Allocate2DArray(m2, p2)
-		tBM7 := Allocate2DArray(p2, n2)
 
 		copyQtrMatrix(A11, m2, A, mf, pf)
 		copyQtrMatrix(A12, m2, A, mf, p2)
@@ -133,9 +114,20 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		copyQtrMatrix(C22, m2, C, m2, n2)
 
 		done := make(chan int)
+		//M1,M2,M3,M4,M5,M6,M7 [][]int
+		M1 := Allocate2DArray(m2, n2)
+		M2 := Allocate2DArray(m2, n2)
+		M3 := Allocate2DArray(m2, n2)
+		M4 := Allocate2DArray(m2, n2)
+		M5 := Allocate2DArray(m2, n2)
+		M6 := Allocate2DArray(m2, n2)
+		M7 := Allocate2DArray(m2, n2)
+
 		go func(){
 			// M1 = (A11 + A22)*(B11 + B22) 
+			tAM1 := Allocate2DArray(m2, p2)
 			AddMatBlocks(tAM1, m2, p2, A11, A22)
+			tBM1 := Allocate2DArray(p2, n2)
 			AddMatBlocks(tBM1, p2, n2, B11, B22)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM1, tBM1, M1)
 			done <- 0
@@ -143,6 +135,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		
 		go func(){
 			//M2 = (A21 + A22)*B11 
+			tAM2 := Allocate2DArray(m2, p2)
 			AddMatBlocks(tAM2, m2, p2, A21, A22)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM2, B11, M2)
 			done <- 0
@@ -150,12 +143,14 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		go func(){
 			//M3 = A11*(B12 - B22) 
+			tBM3 := Allocate2DArray(p2, n2)
 			SubMatBlocks(tBM3, p2, n2, B12, B22)
 			strassenMMult(0, m2, 0, n2, 0, p2, A11, tBM3, M3)
 			done <- 0
 		}()
 		go func(){
 			//M4 = A22*(B21 - B11) 
+			tBM4 := Allocate2DArray(p2, n2)
 			SubMatBlocks(tBM4, p2, n2, B21, B11)
 			strassenMMult(0, m2, 0, n2, 0, p2, A22, tBM4, M4)
 			done <- 0
@@ -163,6 +158,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		go func(){
 			//M5 = (A11 + A12)*B22 
+			tAM5 := Allocate2DArray(m2, p2)
 			AddMatBlocks(tAM5, m2, p2, A11, A12)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM5, B22, M5)
 			done <- 0
@@ -170,7 +166,9 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		go func(){
 			//M6 = (A21 - A11)*(B11 + B12) 
+			tAM6 := Allocate2DArray(m2, p2)
 			SubMatBlocks(tAM6, m2, p2, A21, A11)
+			tBM6 := Allocate2DArray(p2, n2)
 			AddMatBlocks(tBM6, p2, n2, B11, B12)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM6, tBM6, M6)
 			done <- 0
@@ -178,13 +176,15 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		go func(){
 			//M7 = (A12 - A22)*(B21 + B22) 
+			tAM7 := Allocate2DArray(m2, p2)
 			SubMatBlocks(tAM7, m2, p2, A12, A22)
+			tBM7 := Allocate2DArray(p2, n2)
 			AddMatBlocks(tBM7, p2, n2, B21, B22)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM7, tBM7, M7)
 			done <- 0
 		}()
 		
-		for cnt := 7;cnt>0;cnt--{
+		for cnt := 7;cnt>0;cnt--{//synchronise all running goroutines
 			<-done
 		}
 
@@ -256,12 +256,7 @@ func main() {
 
 	for i := 0; i < P; i++ {
 		for j := 0; j < N; j++ {
-			if i == j {
-				B[i][j] = 1
-			} else {
-				B[i][j] = 0
-			}
-			//B[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
+			B[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
 		}
 	}
 	
