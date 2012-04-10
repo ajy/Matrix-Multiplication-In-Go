@@ -3,15 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
-	"math/rand"
 	"time"
+	"os"
 )
 
 const GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
-var MatSize int
+var mat1 string
+var mat2 string
 
 func init() {
-	flag.IntVar(&MatSize, "size", 1024, "specifies the size of the matrices to be multiplied, must be power of 2")
+	flag.StringVar(&mat1,"mat1","./data1.csv","Path to the CSV data file.")
+	flag.StringVar(&mat2,"mat2","./data2.csv","Path to the CSV data file.")
 }
 
 func seqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
@@ -49,7 +51,7 @@ func copyQtrMatrix(X [][]int, m int, Y [][]int, mf, nf int) {
 	}
 }
 
-func AddMatBlocks(T [][]int, m, n int, X [][]int, Y [][]int) {
+func AddMats(T [][]int, m, n int, X [][]int, Y [][]int) {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			T[i][j] = X[i][j] + Y[i][j]
@@ -57,7 +59,7 @@ func AddMatBlocks(T [][]int, m, n int, X [][]int, Y [][]int) {
 	}
 }
 
-func SubMatBlocks(T [][]int, m, n int, X [][]int, Y [][]int) {
+func SubMats(T [][]int, m, n int, X [][]int, Y [][]int) {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			T[i][j] = X[i][j] - Y[i][j]
@@ -130,34 +132,34 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		copyQtrMatrix(C22, m2, C, m2, n2)
 
 		// M1 = (A11 + A22)*(B11 + B22) 
-		AddMatBlocks(tAM1, m2, p2, A11, A22)
-		AddMatBlocks(tBM1, p2, n2, B11, B22)
+		AddMats(tAM1, m2, p2, A11, A22)
+		AddMats(tBM1, p2, n2, B11, B22)
 		strassenMMult(0, m2, 0, n2, 0, p2, tAM1, tBM1, M1)
 
 		//M2 = (A21 + A22)*B11 
-		AddMatBlocks(tAM2, m2, p2, A21, A22)
+		AddMats(tAM2, m2, p2, A21, A22)
 		strassenMMult(0, m2, 0, n2, 0, p2, tAM2, B11, M2)
 
 		//M3 = A11*(B12 - B22) 
-		SubMatBlocks(tBM3, p2, n2, B12, B22)
+		SubMats(tBM3, p2, n2, B12, B22)
 		strassenMMult(0, m2, 0, n2, 0, p2, A11, tBM3, M3)
 
 		//M4 = A22*(B21 - B11) 
-		SubMatBlocks(tBM4, p2, n2, B21, B11)
+		SubMats(tBM4, p2, n2, B21, B11)
 		strassenMMult(0, m2, 0, n2, 0, p2, A22, tBM4, M4)
 
 		//M5 = (A11 + A12)*B22 
-		AddMatBlocks(tAM5, m2, p2, A11, A12)
+		AddMats(tAM5, m2, p2, A11, A12)
 		strassenMMult(0, m2, 0, n2, 0, p2, tAM5, B22, M5)
 
 		//M6 = (A21 - A11)*(B11 + B12) 
-		SubMatBlocks(tAM6, m2, p2, A21, A11)
-		AddMatBlocks(tBM6, p2, n2, B11, B12)
+		SubMats(tAM6, m2, p2, A21, A11)
+		AddMats(tBM6, p2, n2, B11, B12)
 		strassenMMult(0, m2, 0, n2, 0, p2, tAM6, tBM6, M6)
 
 		//M7 = (A12 - A22)*(B21 + B22) 
-		SubMatBlocks(tAM7, m2, p2, A12, A22)
-		AddMatBlocks(tBM7, p2, n2, B21, B22)
+		SubMats(tAM7, m2, p2, A12, A22)
+		AddMats(tBM7, p2, n2, B21, B22)
 		strassenMMult(0, m2, 0, n2, 0, p2, tAM7, tBM7, M7)
 
 		for i := 0; i < m2; i++ {
@@ -210,41 +212,48 @@ func CheckResults(m, n int, C, C1 [][]int) bool {
 }
 
 func main() {
+	N := 0
 	flag.Parse()
-	M := MatSize
-	N := MatSize
-	P := MatSize
-
-	A := Allocate2DArray(M, P)
-	B := Allocate2DArray(P, N)
+	A := OpenCsv(mat1)
+	B := OpenCsv(mat2)
+	M := A.Rows
+	P := B.Columns
+	if(A.Columns==B.Rows){
+		N = A.Columns
+	} else {
+		fmt.Println("These matrices cannot be multiplied, %s has %d columns and %s has %d rows",mat1,A.Columns,mat2,B.Rows)
+		os.Exit(1)
+	}
+//	A := Allocate2DArray(M, P)
+//	B := Allocate2DArray(P, N)
 	C := Allocate2DArray(M, N)
 	C4 := Allocate2DArray(M, N)
 
-	for i := 0; i < M; i++ {
-		for j := 0; j < P; j++ {
-			A[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
-		}
-	}
+//	for i := 0; i < M; i++ {
+//		for j := 0; j < P; j++ {
+//			A[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
+//		}
+//	}
 
-	for i := 0; i < P; i++ {
-		for j := 0; j < N; j++ {
-			if i == j {
-				B[i][j] = 1
-			} else {
-				B[i][j] = 0
-			}
-			//B[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
-		}
-	}
+//	for i := 0; i < P; i++ {
+//		for j := 0; j < N; j++ {
+//			if i == j {
+//				B[i][j] = 1
+//			} else {
+//				B[i][j] = 0
+//			}
+//			//B[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
+//		}
+//	}
 
 	fmt.Printf("Execute Standard matmult\n\n")
 	before := time.Now()
-	seqMatMult(M, N, P, A, B, C)
+	seqMatMult(M, N, P, A.Data, B.Data, C)
 	after := time.Now()
 	fmt.Printf("Standard matrix function done in %v s\n\n\n", after.Sub(before).Seconds())
 
 	before = time.Now()
-	matmultS(M, N, P, A, B, C4)
+	matmultS(M, N, P, A.Data, B.Data, C4)
 	after = time.Now()
 	fmt.Printf("Strassen matrix function done in %v s\n\n\n", after.Sub(before).Seconds())
 
