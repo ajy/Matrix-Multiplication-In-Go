@@ -47,7 +47,7 @@ pprof.WriteHeapProfile(f2) //Memory profiler
 	mat2 := OpenCsv(mat2)
     end := time.Now() 
 	rtime := end.Sub(start)
-	fmt.Printf("===Time Taken to read Matrices %v ns\n",rtime.Nanoseconds())
+	fmt.Printf("===Time Taken to read Matrices %v s\n",rtime.Seconds())
 	//fmt.Println()	
 	matres := Matrix{mat1.Rows,mat2.Columns,make([][]int,mat1.Rows)}
 	done := make(chan bool)
@@ -74,12 +74,12 @@ pprof.WriteHeapProfile(f2) //Memory profiler
 	for i := 0;i < NumWorkers;i++ {
                 <-done
 	}
-	end := time.Now()	
+	end = time.Now()	
 	
 	mtime := end.Sub(start)
 	
-	fmt.Printf("===Time taken for multiplication %v ns ",mtime.Nanoseconds())	
+	fmt.Printf("===Time taken for multiplication %v s ",mtime.Seconds())	
 	fmt.Println()
-	fmt.Printf("===Total time taken %v ns ",(rtime+mtime).Nanoseconds())
+	fmt.Printf("===Total time taken %v s ",(rtime+mtime).Seconds())
 
 }
