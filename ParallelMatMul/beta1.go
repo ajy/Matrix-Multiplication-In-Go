@@ -15,8 +15,8 @@ var mat2 string
 var NumWorkers int
 
 func init() {
-	flag.StringVar(&mat1, "mat1", "./data1.csv", "Path to the CSV data file.")
-	flag.StringVar(&mat2, "mat2", "./data2.csv", "Path to the CSV data file.")
+	flag.StringVar(&mat1, "mat1", "../data1.csv", "Path to the CSV data file.")
+	flag.StringVar(&mat2, "mat2", "../data2.csv", "Path to the CSV data file.")
 	flag.IntVar(&NumWorkers, "workers", 5, "number of goroutines doing the work")
 }
 
