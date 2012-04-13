@@ -1,1 +1,20 @@
-project
+Special Topic
+--------------
+The ParallelMatMul folder contains all code required for our own implementation of a matrix multiplier.
+ -  ChannelRowColMultiplier.go
+    contains RowColMultiplier function 
+ -  beta1.go
+    contains the main function which calls functions from other files to perform the multiplication and profiles the execution.
+ -  read_csv.go
+    contains functions for reading matrices from csv files and to interact with the resulting matrices
+ -  structure_defs.go
+    contains the structure definitions for structures used
+-   beta_test.go and beta_b_test.go
+    contains testing and benchmarking code
+The Strassen Mul folder contains all code required for our serial and parallel implementations of Strassen multiplication.
+-  StrassenMul.go andParStrassenMul.go
+   contain serial and parallel implementations for Strassen multiplication of files
+-  read_csv.go
+   contains functions for reading matrices from csv files and to interact with the resulting matrices
+-  structure_defs.go
+   contains the structure definitions for structures used
