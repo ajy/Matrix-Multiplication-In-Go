@@ -48,7 +48,7 @@ func main() {
 	mat2 := OpenCsv(mat2)
 	end := time.Now()
 	rtime := end.Sub(start)
-	fmt.Printf("===Time Taken to read Matrices %v s\n", rtime.Seconds())
+	fmt.Printf("\nTime Taken to read Matrices %v s\n", rtime.Seconds())
 	matres := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}
 	done := make(chan bool)
 	initMatrix(&matres) //matres.initMatrix() make it this way
@@ -56,6 +56,7 @@ func main() {
 
 	matValidate := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)} //Matrix for validating the results
 	initMatrix(&matValidate)
+	fmt.Println("\nExecuting Parallel Matrix Multiplication")
 	start = time.Now()
 	go func() {
 		for i := 0; i < mat2.Columns; i++ {
@@ -79,13 +80,18 @@ func main() {
 
 	mtime := end.Sub(start)
 
-	fmt.Printf("===Time taken for multiplication %v s ", mtime.Seconds())
+	fmt.Printf("\nParallel matrix multiplication done in %v s ", mtime.Seconds())
 	fmt.Println()
-	fmt.Printf("===Total time taken %v s ", (rtime + mtime).Seconds())
+	fmt.Printf("\nTotal time taken %v s ", (rtime + mtime).Seconds())
 
 	//Validation
+	fmt.Println("\nChecking for errors using standard matrix multiplication")
 	seqMatMult(mat1.Data, mat2.Data, matValidate.Data)
-	fmt.Println("Validation:", CheckResults(matres.Data, matValidate.Data))
+	if CheckResults(matres.Data,matValidate.Data) {
+		fmt.Println("\nNo errors occured")
+	} else {
+		fmt.Println("\nError detected\n")
+	}
 }
 
 func seqMatMult(A [][]int, B [][]int, C [][]int) {

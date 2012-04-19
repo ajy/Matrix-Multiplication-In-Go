@@ -210,11 +210,9 @@ func matmultS(m, n, p int, A, B, C [][]int) {
 	strassenMMult(0, m, 0, n, 0, p, A, B, C)
 }
 
-func CheckResults(m, n int, C, C1 [][]int) bool {
-	// 
-	// May need to take into consideration the floating point roundoff error 
-	// due to parallel execution 
-	// 
+func CheckResults(C, C1 [][]int) bool {
+	m := len(C)  //determines the size of the matrix from the matrix rather than using variables passed 
+	n := len(C1) //as arguments
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			if C[i][j] != C1[i][j] {
@@ -232,11 +230,11 @@ func CheckResults(m, n int, C, C1 [][]int) bool {
 					}
 					fmt.Printf("\n")
 				}
-				return true
+				return false //return false if the matrix multiplication was not valid
 			}
 		}
 	}
-	return false
+	return true //returning true on successfull validation
 }
 
 func main() {
@@ -250,39 +248,27 @@ func main() {
 		os.Exit(1)
 	}
 	N := A.Columns
-//  A := Allocate2DArray(M, P)
-//  B := Allocate2DArray(P, N)
 	C := Allocate2DArray(M, N)
 	C4 := Allocate2DArray(M, N)
 
-//	for i := 0; i < M; i++ {
-//		for j := 0; j < P; j++ {
-//			A[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
-//		}
-//	}
-
-//	for i := 0; i < P; i++ {
-//		for j := 0; j < N; j++ {
-//			B[i][j] = 5.0 - ((rand.Int() % 100) / 10.0)
-//		}
-//	}
-	
 	runtime.GOMAXPROCS(CoreNo)//set number of cores Go can use
 
-	fmt.Printf("Execute Standard matmult\n\n")
+	fmt.Printf("Executing Standard matrix multiplication\n")
 	before := time.Now()
 	seqMatMult(M, N, P, A.Data, B.Data, C)
 	after := time.Now()
-	fmt.Printf("Standard matrix function done in %v s\n\n\n", after.Sub(before).Seconds())
+	fmt.Printf("Standard matrix multiplication done in %v s\n\n\n", after.Sub(before).Seconds())
 
+	fmt.Print("Executing Strassen matrix multiplication\n")
 	before = time.Now()
 	matmultS(M, N, P, A.Data, B.Data, C4)
 	after = time.Now()
-	fmt.Printf("Strassen matrix function done in %v s\n\n\n", after.Sub(before).Seconds())
+	fmt.Printf("Strassen matrix multiplication done in %v s\n\n\n", after.Sub(before).Seconds())
 
-	if CheckResults(M, N, C, C4) {
-		fmt.Printf("Error in matmultS\n\n")
+	fmt.Println("Checking for errors")
+	if CheckResults(C, C4) {
+		fmt.Println("\nNo errors occured")
 	} else {
-		fmt.Printf("OKAY\n\n")
+		fmt.Println("\nError detected\n")
 	}
 }
