@@ -20,6 +20,30 @@ func init() {
 	flag.IntVar(&NumWorkers, "workers", 5, "number of goroutines doing the work")
 }
 
+func ParMatMul(mat1, mat2, matres *Matrix) {
+	done := make(chan bool)
+	rowCol := make(chan MatrixRowColPair)
+
+	go func() {
+		for i := 0; i < mat2.Columns; i++ {
+			col1 := mat2.GetCol(i) //was row1 := mat1.GetRow(i)
+			for j := 0; j < mat1.Rows; j++ {
+				row1 := mat1.GetRow(j) //was col1 := mat2.GetCol(j)
+				matobj := MatrixRowColPair{j, i, row1, col1}
+				rowCol <- matobj
+			}
+		}
+		close(rowCol)
+	}()
+
+	for i := 0; i < NumWorkers; i++ {
+		go RowColMultiplier(matres, rowCol, done)
+	}
+	for i := 0; i < NumWorkers; i++ {
+		<-done
+	}
+}
+
 func main() {
 
 	runtime.GOMAXPROCS(4)
@@ -50,32 +74,13 @@ func main() {
 	rtime := end.Sub(start)
 	fmt.Printf("\nTime Taken to read Matrices %v s\n", rtime.Seconds())
 	matres := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}
-	done := make(chan bool)
 	initMatrix(&matres) //matres.initMatrix() make it this way
-	rowCol := make(chan MatrixRowColPair)
-
+	
 	matValidate := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)} //Matrix for validating the results
 	initMatrix(&matValidate)
 	fmt.Println("\nExecuting Parallel Matrix Multiplication")
 	start = time.Now()
-	go func() {
-		for i := 0; i < mat2.Columns; i++ {
-			col1 := mat2.GetCol(i) //was row1 := mat1.GetRow(i)
-			for j := 0; j < mat1.Rows; j++ {
-				row1 := mat1.GetRow(j) //was col1 := mat2.GetCol(j)
-				matobj := MatrixRowColPair{j, i, row1, col1}
-				rowCol <- matobj
-			}
-		}
-		close(rowCol)
-	}()
-
-	for i := 0; i < NumWorkers; i++ {
-		go RowColMultiplier(&matres, rowCol, done)
-	}
-	for i := 0; i < NumWorkers; i++ {
-		<-done
-	}
+	ParMatMul(mat1, mat2, &matres)
 	end = time.Now()
 
 	mtime := end.Sub(start)
