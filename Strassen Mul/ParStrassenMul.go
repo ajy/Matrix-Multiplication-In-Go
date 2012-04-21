@@ -176,17 +176,14 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 			done <- 0
 		}()
 
-		go func(){
 			//M7 = (A12 - A22)*(B21 + B22) 
 			tAM7 := Allocate2DArray(m2, p2)
 			SubMats(tAM7, m2, p2, A12, A22)
 			tBM7 := Allocate2DArray(p2, n2)
 			AddMats(tBM7, p2, n2, B21, B22)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM7, tBM7, M7)
-			done <- 0
-		}()
-		
-		for cnt := 7;cnt>0;cnt--{//synchronise all running goroutines
+				
+		for cnt := 6;cnt>0;cnt--{//synchronise all running goroutines
 			<-done
 		}
 
