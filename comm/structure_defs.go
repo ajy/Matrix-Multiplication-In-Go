@@ -1,4 +1,4 @@
-package main
+package comm
 
 type Matrix struct {
 	Rows,Columns int

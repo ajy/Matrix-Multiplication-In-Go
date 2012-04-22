@@ -1,5 +1,7 @@
 // this row col multiplier is completely serial and performs i/o through channels
-package main
+package ParallelMatMul
+
+import . "../comm"
 
 func RowColMultiplier(mat *Matrix, rowCol <-chan MatrixRowColPair,done chan bool) {
 	for ;; {

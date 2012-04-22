@@ -1,4 +1,4 @@
-package main
+package comm
 
 import (
 	"encoding/csv"
@@ -17,7 +17,7 @@ func OpenCsv(s string) (mat *Matrix) {
 	read := csv.NewReader(io.Reader(f))
 	data, err := read.ReadAll()
 	mat = &Matrix{len(data), len(data[0]), make([][]int, len(data))}
-	initMatrix(mat)
+	InitMatrix(mat)
 	if err != nil {
 		fmt.Println("Failed to read from the CSV File(Maybe the file does not comply to the CSV standard defined in RFC 4180)")
 	}
@@ -30,7 +30,7 @@ func OpenCsv(s string) (mat *Matrix) {
 	return
 }
 
-func initMatrix(mat *Matrix) {
+func InitMatrix(mat *Matrix) {
 	for i := 0; i < mat.Rows; i++ {
 		mat.Data[i] = make([]int, mat.Columns)
 	}

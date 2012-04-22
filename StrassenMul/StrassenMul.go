@@ -1,22 +1,12 @@
-package main
+package StrassenMul
 
 import (
-	"flag"
-	"fmt"
-	"time"
-	"os"
+	"fmt"	
 )
 
 const GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
-var mat1 string
-var mat2 string
 
-func init() {
-	flag.StringVar(&mat1,"mat1","../data1.csv","Path to the CSV data file.")
-	flag.StringVar(&mat2,"mat2","../data2.csv","Path to the CSV data file.")
-}
-
-func seqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
+func SeqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			C[i][j] = 0.0
@@ -173,7 +163,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	}
 }
 
-func matmultS(m, n, p int, A, B, C [][]int) {
+func MatmultS(m, n, p int, A, B, C [][]int) {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			C[i][j] = 0
@@ -207,40 +197,4 @@ func CheckResults(C, C1 [][]int) bool {
 		}
 	}
 	return true //returning true on successfull validation
-}
-
-func main() {
-	N := 0
-	flag.Parse()
-	A := OpenCsv(mat1)
-	B := OpenCsv(mat2)
-	M := A.Rows
-	P := B.Columns
-	if(A.Columns==B.Rows){
-		N = A.Columns
-	} else {
-		fmt.Println("These matrices cannot be multiplied, %s has %d columns and %s has %d rows",mat1,A.Columns,mat2,B.Rows)
-		os.Exit(1)
-	}
-	C := Allocate2DArray(M, N)
-	C4 := Allocate2DArray(M, N)
-
-	fmt.Print("Executing Standard matrix multiplication\n")
-	before := time.Now()
-	seqMatMult(M, N, P, A.Data, B.Data, C)
-	after := time.Now()
-	fmt.Printf("Standard matrix multiplication done in %v s\n\n", after.Sub(before).Seconds())
-
-	fmt.Print("Executing Strassen matrix multiplication\n")
-	before = time.Now()
-	matmultS(M, N, P, A.Data, B.Data, C4)
-	after = time.Now()
-	fmt.Printf("Strassen matrix multiplication done in %v s\n\n", after.Sub(before).Seconds())
-
-	fmt.Println("Checking for errors")
-	if CheckResults(C, C4) {
-		fmt.Println("\nNo errors occured")
-	} else {
-		fmt.Println("\nError detected\n")
-	}
 }
