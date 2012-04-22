@@ -1,21 +1,12 @@
-package StrassenMul
+package Strassen
 
 import (
-	"fmt"	
+	"fmt"
+	"math"	
+	. "../comm"
 )
 
 const GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
-
-func SeqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			C[i][j] = 0.0
-			for k := 0; k < p; k++ {
-				C[i][j] += A[i][k] * B[k][j]
-			}
-		}
-	}
-}
 
 func matmultleaf(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	/* 
@@ -56,7 +47,7 @@ func SubMats(T [][]int, m, n int, X [][]int, Y [][]int) {
 		}
 	}
 }
-func Allocate2DArray(m, n int) [][]int {
+func allocate2DArray(m, n int) [][]int {
 	temp := make([][]int, m)
 	for i := 0; i < len(temp); i++ {
 		temp[i] = make([]int, n)
@@ -72,13 +63,13 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		n2 := (nl - nf) / 2
 		p2 := (pl - pf) / 2
 
-		M1 := Allocate2DArray(m2, n2)
-		M2 := Allocate2DArray(m2, n2)
-		M3 := Allocate2DArray(m2, n2)
-		M4 := Allocate2DArray(m2, n2)
-		M5 := Allocate2DArray(m2, n2)
-		M6 := Allocate2DArray(m2, n2)
-		M7 := Allocate2DArray(m2, n2)
+		M1 := allocate2DArray(m2, n2)
+		M2 := allocate2DArray(m2, n2)
+		M3 := allocate2DArray(m2, n2)
+		M4 := allocate2DArray(m2, n2)
+		M5 := allocate2DArray(m2, n2)
+		M6 := allocate2DArray(m2, n2)
+		M7 := allocate2DArray(m2, n2)
 
 		A11 := make([][]int, m2)
 		A12 := make([][]int, m2)
@@ -95,16 +86,16 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		C21 := make([][]int, m2)
 		C22 := make([][]int, m2)
 
-		tAM1 := Allocate2DArray(m2, p2)
-		tBM1 := Allocate2DArray(p2, n2)
-		tAM2 := Allocate2DArray(m2, p2)
-		tBM3 := Allocate2DArray(p2, n2)
-		tBM4 := Allocate2DArray(p2, n2)
-		tAM5 := Allocate2DArray(m2, p2)
-		tAM6 := Allocate2DArray(m2, p2)
-		tBM6 := Allocate2DArray(p2, n2)
-		tAM7 := Allocate2DArray(m2, p2)
-		tBM7 := Allocate2DArray(p2, n2)
+		tAM1 := allocate2DArray(m2, p2)
+		tBM1 := allocate2DArray(p2, n2)
+		tAM2 := allocate2DArray(m2, p2)
+		tBM3 := allocate2DArray(p2, n2)
+		tBM4 := allocate2DArray(p2, n2)
+		tAM5 := allocate2DArray(m2, p2)
+		tAM6 := allocate2DArray(m2, p2)
+		tBM6 := allocate2DArray(p2, n2)
+		tAM7 := allocate2DArray(m2, p2)
+		tBM7 := allocate2DArray(p2, n2)
 
 		copyQtrMatrix(A11, m2, A, mf, pf)
 		copyQtrMatrix(A12, m2, A, mf, p2)
@@ -163,38 +154,19 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	}
 }
 
-func MatmultS(m, n, p int, A, B, C [][]int) {
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			C[i][j] = 0
-		}
+func Mul(A, B, C *Matrix) {
+	if isPowerOf2(A.Rows) && isPowerOf2(A.Columns) && isPowerOf2(B.Columns) {
+		strassenMMult(0, A.Rows, 0, A.Columns, 0, B.Columns, A.Data, B.Data, C.Data)
+	} else {
+		fmt.Println("Cannot multiply matrices must have dimensions that are powers of 2")
+		return
 	}
-	strassenMMult(0, m, 0, n, 0, p, A, B, C)
 }
 
-func CheckResults(C, C1 [][]int) bool {
-	m := len(C)  //determines the size of the matrix from the matrix rather than using variables passed 
-	n := len(C1) //as arguments
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if C[i][j] != C1[i][j] {
-				fmt.Printf("C is\n")
-				for i := 0; i < m; i++ {
-					for j := 0; j < n; j++ {
-						fmt.Printf("%v ", C[i][j])
-					}
-					fmt.Printf("\n")
-				}
-				fmt.Printf("C1 is\n")
-				for i := 0; i < m; i++ {
-					for j := 0; j < n; j++ {
-						fmt.Printf("%v ", C1[i][j])
-					}
-					fmt.Printf("\n")
-				}
-				return false //return false if the matrix multiplication was not valid
-			}
-		}
+func isPowerOf2(n int) bool {
+	t := math.Log2(float64(n))
+	if t - float64(int(t)) == 0.0 {
+		return true
 	}
-	return true //returning true on successfull validation
+	return false
 }

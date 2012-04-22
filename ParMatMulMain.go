@@ -48,6 +48,10 @@ func main() {
 	mat1 := OpenCsv(mat1loc)
 	mat2 := OpenCsv(mat2loc)
 	end := time.Now()
+	if(mat1.Columns!=mat2.Rows){
+		fmt.Println("These matrices cannot be multiplied, %s has %d columns and %s has %d rows",mat1loc,mat1.Columns,mat2loc,mat2.Rows)
+		os.Exit(1)
+	}
 	rtime := end.Sub(start)
 	fmt.Printf("\nTime Taken to read Matrices %v s\n", rtime.Seconds())
 	matres := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}

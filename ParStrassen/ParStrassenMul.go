@@ -1,21 +1,12 @@
-package ParStrassenMul
+package ParStrassen
 
 import (
-	"fmt"	
+	"math"
+	"fmt"
+	. "../comm"	
 )
 
 const GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
-
-func SeqMatMult(m int, n int, p int, A [][]int, B [][]int, C [][]int) {
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			C[i][j] = 0.0
-			for k := 0; k < p; k++ {
-				C[i][j] += A[i][k] * B[k][j]
-			}
-		}
-	}
-}
 
 func matmultleaf(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	/* 
@@ -56,7 +47,8 @@ func SubMats(T [][]int, m, n int, X [][]int, Y [][]int) {
 		}
 	}
 }
-func Allocate2DArray(m, n int) [][]int {
+
+func allocate2DArray(m, n int) [][]int {
 	temp := make([][]int, m)
 	for i := 0; i < len(temp); i++ {
 		temp[i] = make([]int, n)
@@ -104,19 +96,19 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		done := make(chan int)
 		//M1,M2,M3,M4,M5,M6,M7 [][]int
-		M1 := Allocate2DArray(m2, n2)
-		M2 := Allocate2DArray(m2, n2)
-		M3 := Allocate2DArray(m2, n2)
-		M4 := Allocate2DArray(m2, n2)
-		M5 := Allocate2DArray(m2, n2)
-		M6 := Allocate2DArray(m2, n2)
-		M7 := Allocate2DArray(m2, n2)
+		M1 := allocate2DArray(m2, n2)
+		M2 := allocate2DArray(m2, n2)
+		M3 := allocate2DArray(m2, n2)
+		M4 := allocate2DArray(m2, n2)
+		M5 := allocate2DArray(m2, n2)
+		M6 := allocate2DArray(m2, n2)
+		M7 := allocate2DArray(m2, n2)
 
 		go func(){
 			// M1 = (A11 + A22)*(B11 + B22) 
-			tAM1 := Allocate2DArray(m2, p2)
+			tAM1 := allocate2DArray(m2, p2)
 			AddMats(tAM1, m2, p2, A11, A22)
-			tBM1 := Allocate2DArray(p2, n2)
+			tBM1 := allocate2DArray(p2, n2)
 			AddMats(tBM1, p2, n2, B11, B22)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM1, tBM1, M1)
 			done <- 0
@@ -124,7 +116,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		
 		go func(){
 			//M2 = (A21 + A22)*B11 
-			tAM2 := Allocate2DArray(m2, p2)
+			tAM2 := allocate2DArray(m2, p2)
 			AddMats(tAM2, m2, p2, A21, A22)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM2, B11, M2)
 			done <- 0
@@ -132,14 +124,14 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		go func(){
 			//M3 = A11*(B12 - B22) 
-			tBM3 := Allocate2DArray(p2, n2)
+			tBM3 := allocate2DArray(p2, n2)
 			SubMats(tBM3, p2, n2, B12, B22)
 			strassenMMult(0, m2, 0, n2, 0, p2, A11, tBM3, M3)
 			done <- 0
 		}()
 		go func(){
 			//M4 = A22*(B21 - B11) 
-			tBM4 := Allocate2DArray(p2, n2)
+			tBM4 := allocate2DArray(p2, n2)
 			SubMats(tBM4, p2, n2, B21, B11)
 			strassenMMult(0, m2, 0, n2, 0, p2, A22, tBM4, M4)
 			done <- 0
@@ -147,7 +139,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		go func(){
 			//M5 = (A11 + A12)*B22 
-			tAM5 := Allocate2DArray(m2, p2)
+			tAM5 := allocate2DArray(m2, p2)
 			AddMats(tAM5, m2, p2, A11, A12)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM5, B22, M5)
 			done <- 0
@@ -155,18 +147,18 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 		go func(){
 			//M6 = (A21 - A11)*(B11 + B12) 
-			tAM6 := Allocate2DArray(m2, p2)
+			tAM6 := allocate2DArray(m2, p2)
 			SubMats(tAM6, m2, p2, A21, A11)
-			tBM6 := Allocate2DArray(p2, n2)
+			tBM6 := allocate2DArray(p2, n2)
 			AddMats(tBM6, p2, n2, B11, B12)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM6, tBM6, M6)
 			done <- 0
 		}()
 
 			//M7 = (A12 - A22)*(B21 + B22) 
-			tAM7 := Allocate2DArray(m2, p2)
+			tAM7 := allocate2DArray(m2, p2)
 			SubMats(tAM7, m2, p2, A12, A22)
-			tBM7 := Allocate2DArray(p2, n2)
+			tBM7 := allocate2DArray(p2, n2)
 			AddMats(tBM7, p2, n2, B21, B22)
 			strassenMMult(0, m2, 0, n2, 0, p2, tAM7, tBM7, M7)
 				
@@ -185,38 +177,19 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	}
 }
 
-func ParMatmultS(m, n, p int, A, B, C [][]int) {
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			C[i][j] = 0
-		}
+func Mul(A, B, C *Matrix) {
+	if isPowerOf2(A.Rows) && isPowerOf2(A.Columns) && isPowerOf2(B.Columns) {
+		strassenMMult(0, A.Rows, 0, A.Columns, 0, B.Columns, A.Data, B.Data, C.Data)
+	} else {
+		fmt.Println("Cannot multiply matrices must have dimensions that are powers of 2")
+		return
 	}
-	strassenMMult(0, m, 0, n, 0, p, A, B, C)
 }
 
-func CheckResults(C, C1 [][]int) bool {
-	m := len(C)  //determines the size of the matrix from the matrix rather than using variables passed 
-	n := len(C1) //as arguments
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if C[i][j] != C1[i][j] {
-				fmt.Printf("C is\n")
-				for i := 0; i < m; i++ {
-					for j := 0; j < n; j++ {
-						fmt.Printf("%v ", C[i][j])
-					}
-					fmt.Printf("\n")
-				}
-				fmt.Printf("C1 is\n")
-				for i := 0; i < m; i++ {
-					for j := 0; j < n; j++ {
-						fmt.Printf("%v ", C1[i][j])
-					}
-					fmt.Printf("\n")
-				}
-				return false //return false if the matrix multiplication was not valid
-			}
-		}
+func isPowerOf2(n int) bool {
+	t := math.Log2(float64(n))
+	if t - float64(int(t)) == 0.0 {
+		return true
 	}
-	return true //returning true on successfull validation
+	return false
 }
