@@ -35,7 +35,7 @@ func main() {
 
 	fmt.Print("Executing Standard matrix multiplication\n")
 	before := time.Now()
-	StrassenMul.SeqMatMult(M, N, P, A.Data, B.Data, C)
+	SeqMatMult(A.Data, B.Data, C)
 	after := time.Now()
 	fmt.Printf("Standard matrix multiplication done in %v s\n\n", after.Sub(before).Seconds())
 
@@ -46,7 +46,7 @@ func main() {
 	fmt.Printf("Strassen matrix multiplication done in %v s\n\n", after.Sub(before).Seconds())
 
 	fmt.Println("Checking for errors")
-	if StrassenMul.CheckResults(C, C4) {
+	if CheckResults(C, C4) {
 		fmt.Println("\nNo errors occured")
 	} else {
 		fmt.Println("\nError detected\n")

@@ -30,13 +30,6 @@ func OpenCsv(s string) (mat *Matrix) {
 	return
 }
 
-func InitMatrix(mat *Matrix) {
-	for i := 0; i < mat.Rows; i++ {
-		mat.Data[i] = make([]int, mat.Columns)
-	}
-
-}
-
 func (mat *Matrix) GetCol(colNum int) []int {
 	col := make([]int, mat.Rows)
 	for i := 0; i < mat.Rows; i++ {

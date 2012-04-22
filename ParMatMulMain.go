@@ -71,8 +71,8 @@ func main() {
 
 	//Validation
 	fmt.Println("\nChecking for errors using standard matrix multiplication")
-	ParallelMatMul.SeqMatMult(mat1.Data, mat2.Data, matValidate.Data)
-	if ParallelMatMul.CheckResults(matres.Data,matValidate.Data) {
+	SeqMatMult(mat1.Data, mat2.Data, matValidate.Data)
+	if CheckResults(matres.Data,matValidate.Data) {
 		fmt.Println("\nNo errors occured")
 	} else {
 		fmt.Println("\nError detected\n")
