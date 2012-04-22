@@ -6,7 +6,7 @@ import (
 	. "../comm"
 )
 
-const GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
+var GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
 
 func matmultleaf(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	/* 
@@ -156,6 +156,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 
 func Mul(A, B, C *Matrix) {
 	if isPowerOf2(A.Rows) && isPowerOf2(A.Columns) && isPowerOf2(B.Columns) {
+		GRAIN = A.Rows*B.Columns*2
 		strassenMMult(0, A.Rows, 0, A.Columns, 0, B.Columns, A.Data, B.Data, C.Data)
 	} else {
 		fmt.Println("Cannot multiply matrices must have dimensions that are powers of 2")
