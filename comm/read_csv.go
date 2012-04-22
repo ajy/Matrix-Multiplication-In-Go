@@ -48,15 +48,3 @@ func (mat *Matrix) GetCol(colNum int) []int {
 func (mat *Matrix) GetRow(rowNum int) []int {
 	return mat.Data[rowNum]
 }
-
-func ReadResult(mat *Matrix, val <-chan MatEl, done chan bool) {
-	for {
-		a, ok := <-val
-		if !ok {
-			done <- true
-			return
-		} else {
-			mat.Data[a.Row][a.Column] = a.Element
-		}
-	}
-}
