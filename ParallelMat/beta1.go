@@ -1,4 +1,4 @@
-package ParallelMatMul
+package ParallelMat
 
 import (
 	. "../comm"
@@ -6,7 +6,7 @@ import (
 
 var NumWorkers int = 5
 
-func ParMatMul(mat1, mat2, matres *Matrix) {
+func Mul(mat1, mat2, matres *Matrix) {
 	done := make(chan bool)
 	rowCol := make(chan MatrixRowColPair)
 

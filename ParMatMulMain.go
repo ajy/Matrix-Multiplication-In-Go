@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./ParallelMatMul"
+	"./ParallelMat"
 	"fmt"
 	"flag"
 	"log"
@@ -57,10 +57,10 @@ func main() {
 	
 	matValidate := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)} //Matrix for validating the results
 	InitMatrix(&matValidate)
-	ParallelMatMul.NumWorkers = NumWorkers// need not be set, has default
+	ParallelMat.NumWorkers = NumWorkers// need not be set, has default
 	fmt.Println("\nExecuting Parallel Matrix Multiplication")
 	start = time.Now()
-	ParallelMatMul.ParMatMul(mat1, mat2, &matres)
+	ParallelMat.Mul(mat1, mat2, &matres)
 	end = time.Now()
 
 	mtime := end.Sub(start)

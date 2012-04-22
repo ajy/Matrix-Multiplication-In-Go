@@ -1,5 +1,5 @@
 // this row col multiplier is completely serial and performs i/o through channels
-package ParallelMatMul
+package ParallelMat
 
 import . "../comm"
 
