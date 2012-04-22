@@ -71,11 +71,11 @@ func main() {
 	
 	
 	ParallelMat.NumWorkers = NumWorkers// need not be set, has default
-	fmt.Println("\nExecuting Parallel Matrix Multiplication\n")
+	fmt.Println("\nExecuting Parallel Matrix Multiplication")
 	start = time.Now()
 	ParallelMat.Mul(mat1, mat2, &matres)
 	end = time.Now()
-	fmt.Printf("\nParallel matrix multiplication done in %v s\n", end.Sub(start).Seconds())
+	fmt.Printf("Parallel matrix multiplication done in %v s\n", end.Sub(start).Seconds())
 	
 	//Validation
 	fmt.Println("\nChecking for errors in Parallel Matrix Multiplication using standard matrix multiplication")
