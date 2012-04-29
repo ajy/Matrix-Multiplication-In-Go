@@ -7,12 +7,15 @@ import (
 	"time"
 	"os"
 	"runtime"
+	"runtime/pprof"
 	. "./comm"
 )
 
 var mat1 string
 var mat2 string
 var CoreNo int
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func init() {
 	flag.StringVar(&mat1,"mat1","./data1.csv","Path to the CSV data file.")
@@ -22,6 +25,14 @@ func init() {
 
 func main() {
 	flag.Parse()
+	if *cpuprofile != "" {
+        f, err := os.Create(*cpuprofile)
+        if err != nil {
+            os.Exit(0)
+        }
+        pprof.StartCPUProfile(f)
+        defer pprof.StopCPUProfile()
+    }
 	A := OpenCsv(mat1)
 	B := OpenCsv(mat2)
 	if(A.Columns!=B.Rows){
