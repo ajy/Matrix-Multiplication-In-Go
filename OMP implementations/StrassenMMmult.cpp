@@ -4,11 +4,13 @@
 #include <time.h>
 #include "2DArray.h"
 
-#define GRAIN  1024*1024*2 /* product size below which matmultleaf is used */  
+int GRAIN; /* product size below which matmultleaf is used */  
 
 void seqMatMult(int m, int n, int p, int** A, int** B, int** C)
 {
+  #pragma omp parallel for
   for (int i = 0; i < m; i++)
+  		#pragma omp parallel for
   		for (int j = 0; j < n; j++)
 		{
 			C[i][j] = 0.0;
@@ -296,7 +298,10 @@ int main(int argc, char* argv[])
   seqMatMult(M, N, P, A, B, C);
   after = omp_get_wtime();
   printf("Standard matrix function done in %10f secs\n\n\n",(after - before));
-
+  
+  //printf("The number of cores is %d\n",omp_get_num_procs());
+  omp_set_num_threads(8);
+  GRAIN = M*N*2;
   before = omp_get_wtime();
   matmultS(M, N, P, A, B, C4);
   after = omp_get_wtime();
