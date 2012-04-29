@@ -1,8 +1,6 @@
 package ParStrassen
 
 import (
-	"math"
-	"fmt"
 	. "../comm"	
 )
 
@@ -178,19 +176,7 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 }
 
 func Mul(A, B, C *Matrix) {
-	if isPowerOf2(A.Rows) && isPowerOf2(A.Columns) && isPowerOf2(B.Columns) {
-		GRAIN = A.Rows*B.Columns*2
-		strassenMMult(0, A.Rows, 0, A.Columns, 0, B.Columns, A.Data, B.Data, C.Data)
-	} else {
-		fmt.Println("Cannot multiply matrices must have dimensions that are powers of 2")
-		return
-	}
+	GRAIN = A.Rows*B.Columns*2
+	strassenMMult(0, A.Rows, 0, A.Columns, 0, B.Columns, A.Data, B.Data, C.Data)
 }
 
-func isPowerOf2(n int) bool {
-	t := math.Log2(float64(n))
-	if t - float64(int(t)) == 0.0 {
-		return true
-	}
-	return false
-}
