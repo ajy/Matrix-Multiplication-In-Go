@@ -46,6 +46,7 @@ func CheckResults(C, C1 [][]int) bool {
 						fmt.Printf("\n")
 					}
 				}
+				fmt.Printf("\n Error occured at %d and %d and the numbers were %d and %d\n",i,j,C[i][j],C1[i][j])
 				return false //return false if the matrix multiplication was not valid
 			}
 		}
