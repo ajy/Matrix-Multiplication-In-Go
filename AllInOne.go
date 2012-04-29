@@ -47,9 +47,11 @@ func main() {
 
 	//Reading the matrices from csv files
 	start := time.Now()
-	mat1 := OpenCsv(mat1loc)
-	mat2 := OpenCsv(mat2loc)
+	matA := OpenCsv(mat1loc)
+	matB := OpenCsv(mat2loc)
 	end := time.Now()
+	mat1 := CopyMatrix(matA)
+	mat2 := CopyMatrix(matB)
 	if(mat1.Columns!=mat2.Rows){
 		fmt.Println("These matrices cannot be multiplied, %s has %d columns and %s has %d rows",mat1loc,mat1.Columns,mat2loc,mat2.Rows)
 		os.Exit(1)
@@ -59,6 +61,8 @@ func main() {
 	
 	matValidate := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)} //Matrix for validating the results
 	InitMatrix(&matValidate)
+	mat1 = CopyMatrix(matA)
+	mat2 = CopyMatrix(matB)
 	fmt.Println("\nExecuting Serial Matrix Multiplication")
 	start = time.Now()
 	SeqMatMult(mat1.Data, mat2.Data, matValidate.Data)
@@ -71,6 +75,8 @@ func main() {
 	
 	
 	ParallelMat.NumWorkers = NumWorkers// need not be set, has default
+	mat1 = CopyMatrix(matA)
+	mat2 = CopyMatrix(matB)
 	fmt.Println("\nExecuting Parallel Matrix Multiplication")
 	start = time.Now()
 	ParallelMat.Mul(mat1, mat2, &matres)
@@ -85,6 +91,10 @@ func main() {
 		fmt.Println("\nError detected\n")
 	}
 	
+	matres = Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}
+	InitMatrix(&matres) //matres.initMatrix() make it this way
+	mat1 = CopyMatrix(matA)
+	mat2 = CopyMatrix(matB)
 	fmt.Print("\nExecuting Strassen matrix multiplication\n")
 	start = time.Now()
 	Strassen.Mul(mat1, mat2, &matres)
@@ -99,6 +109,10 @@ func main() {
 		fmt.Println("\nError detected\n")
 	}
 	
+	matres = Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}
+	InitMatrix(&matres) //matres.initMatrix() make it this way
+	mat1 = CopyMatrix(matA)
+	mat2 = CopyMatrix(matB)
 	fmt.Println("\nExecuting Parallel Strassen matrix multiplication")
 	start = time.Now()
 	ParStrassen.Mul(mat1, mat2, &matres)
@@ -112,6 +126,16 @@ func main() {
 	} else {
 		fmt.Println("\nError detected\n")
 	}
-	
-
 }
+
+func CopyMatrix(mat1 *Matrix) (mat2 *Matrix) {
+	mat2 = &Matrix{mat1.Rows, mat1.Columns, make([][]int, mat1.Rows)}
+	for i := 0; i < mat1.Rows; i++ {
+		mat2.Data[i] = make([]int, mat1.Columns)
+		for j := 0; j<mat1.Columns; j++ {
+			mat2.Data[i][j] = mat1.Data[i][j]
+		}
+	}
+	return mat2
+}
+
