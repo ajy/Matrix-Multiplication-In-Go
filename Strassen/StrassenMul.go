@@ -1,8 +1,6 @@
 package Strassen
 
 import (
-	"fmt"
-	"math"	
 	. "../comm"
 )
 
