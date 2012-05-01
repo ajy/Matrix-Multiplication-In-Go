@@ -4,7 +4,7 @@ import (
 	. "../comm"
 )
 
-var GRAIN int = 1024*1024 /* size of product(of dimensions) below which matmultleaf is used */
+var GRAIN int64 /* size of product(of dimensions) below which matmultleaf is used */
 
 func matmultleaf(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	/* 
@@ -24,9 +24,9 @@ func matmultleaf(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 	}
 }
 
-func copyQtrMatrix(X [][]int, m int, Y [][]int, mf, nf int) {
+func copyQtrMatrix(X [][]int, m, n int, Y [][]int, mf, nf int) {
 	for i := 0; i < m; i++ {
-		X[i] = Y[mf+i][nf:]
+		X[i] = Y[mf+i][nf:nf+n]
 	}
 }
 
@@ -54,7 +54,7 @@ func allocate2DArray(m, n int) [][]int {
 }
 
 func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
-	if (ml-mf)*(nl-nf)*(pl-pf) < GRAIN {
+	if int64(ml-mf)*int64(nl-nf)*int64(pl-pf) < GRAIN {
 		matmultleaf(mf, ml, nf, nl, pf, pl, A, B, C)
 	} else {
 		m2 := (ml - mf) / 2
@@ -95,20 +95,20 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 		tAM7 := allocate2DArray(m2, p2)
 		tBM7 := allocate2DArray(p2, n2)
 
-		copyQtrMatrix(A11, m2, A, mf, pf)
-		copyQtrMatrix(A12, m2, A, mf, p2)
-		copyQtrMatrix(A21, m2, A, m2, pf)
-		copyQtrMatrix(A22, m2, A, m2, p2)
+		copyQtrMatrix(A11, m2, p2, A, mf, pf)
+		copyQtrMatrix(A12, m2, p2, A, mf, p2)
+		copyQtrMatrix(A21, m2, p2, A, m2, pf)
+		copyQtrMatrix(A22, m2, p2, A, m2, p2)
 
-		copyQtrMatrix(B11, p2, B, pf, nf)
-		copyQtrMatrix(B12, p2, B, pf, n2)
-		copyQtrMatrix(B21, p2, B, p2, nf)
-		copyQtrMatrix(B22, p2, B, p2, n2)
+		copyQtrMatrix(B11, p2, n2, B, pf, nf)
+		copyQtrMatrix(B12, p2, n2, B, pf, n2)
+		copyQtrMatrix(B21, p2, n2, B, p2, nf)
+		copyQtrMatrix(B22, p2, n2, B, p2, n2)
 
-		copyQtrMatrix(C11, m2, C, mf, nf)
-		copyQtrMatrix(C12, m2, C, mf, n2)
-		copyQtrMatrix(C21, m2, C, m2, nf)
-		copyQtrMatrix(C22, m2, C, m2, n2)
+		copyQtrMatrix(C11, m2, n2, C, mf, nf)
+		copyQtrMatrix(C12, m2, n2, C, mf, n2)
+		copyQtrMatrix(C21, m2, n2, C, m2, nf)
+		copyQtrMatrix(C22, m2, n2, C, m2, n2)
 
 		// M1 = (A11 + A22)*(B11 + B22) 
 		AddMats(tAM1, m2, p2, A11, A22)
@@ -153,6 +153,6 @@ func strassenMMult(mf, ml, nf, nl, pf, pl int, A, B, C [][]int) {
 }
 
 func Mul(A, B, C *Matrix) {
-		GRAIN = A.Rows*B.Columns*2
+		GRAIN = int64(A.Rows*B.Columns*2)
 		strassenMMult(0, A.Rows, 0, A.Columns, 0, B.Columns, A.Data, B.Data, C.Data)
 }
