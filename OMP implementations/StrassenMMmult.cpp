@@ -4,13 +4,11 @@
 #include <time.h>
 #include "2DArray.h"
 
-int GRAIN; /* product size below which matmultleaf is used */  
+long GRAIN; /* product size below which matmultleaf is used */  
 
 void seqMatMult(int m, int n, int p, int** A, int** B, int** C)
 {
-  #pragma omp parallel for
   for (int i = 0; i < m; i++)
-  		#pragma omp parallel for
   		for (int j = 0; j < n; j++)
 		{
 			C[i][j] = 0.0;
@@ -68,7 +66,7 @@ void SubMatBlocks(int **T, int m, int n, int **X, int **Y)
 
 void strassenMMult(int mf, int ml, int nf, int nl, int pf, int pl, int **A, int **B, int **C)
 {
-	if ((ml-mf)*(nl-nf)*(pl-pf) < GRAIN)
+	if ((long)(ml-mf)*(long)(nl-nf)*(long)(pl-pf) < GRAIN)
 	      matmultleaf(mf, ml, nf, nl, pf, pl, A, B, C); 
 
 	else {
@@ -301,7 +299,7 @@ int main(int argc, char* argv[])
   
   //printf("The number of cores is %d\n",omp_get_num_procs());
   omp_set_num_threads(8);
-  GRAIN = M*N*2;
+  GRAIN = (long)(M*N*2);
   before = omp_get_wtime();
   matmultS(M, N, P, A, B, C4);
   after = omp_get_wtime();
