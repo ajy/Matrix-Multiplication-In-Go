@@ -55,7 +55,9 @@ func main() {
 	if(mat1.Columns!=mat2.Rows){
 		fmt.Println("These matrices cannot be multiplied, %s has %d columns and %s has %d rows",mat1loc,mat1.Columns,mat2loc,mat2.Rows)
 		os.Exit(1)
-	}
+	}else{
+        fmt.Printf("Matrix sizes:%dX%d and %dX%d",mat1.Rows,mat1.Columns,mat2.Rows, mat2.Columns)
+    }
 	rtime := end.Sub(start)
 	fmt.Printf("\nTime Taken to read Matrices: %v s\n", rtime.Seconds())
 	
