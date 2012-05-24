@@ -57,74 +57,72 @@ func main() {
 		os.Exit(1)
 	}
 	rtime := end.Sub(start)
-	fmt.Printf("\nTime Taken to read Matrices %v s\n", rtime.Seconds())
+	fmt.Printf("\nTime Taken to read Matrices: %v s\n", rtime.Seconds())
 	
 	matValidate := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)} //Matrix for validating the results
 	InitMatrix(&matValidate)
 	mat1 = CopyMatrix(matA)
 	mat2 = CopyMatrix(matB)
-	fmt.Println("\nExecuting Serial Matrix Multiplication")
+	fmt.Printf("\nBeginning execution\nAlgorithm                                Time to execute")
 	start = time.Now()
 	SeqMatMult(mat1.Data, mat2.Data, matValidate.Data)
 	end = time.Now()
-	fmt.Printf("\nSerial matrix multiplication done in %v s\n", end.Sub(start).Seconds())
-	
+	fmt.Printf("\nSerial matrix multiplication             %v s", end.Sub(start).Seconds())
 	
 	matres := Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}
 	InitMatrix(&matres) //matres.initMatrix() make it this way
 	
-	
 	ParallelMat.NumWorkers = NumWorkers// need not be set, has default
 	mat1 = CopyMatrix(matA)
 	mat2 = CopyMatrix(matB)
-	fmt.Println("\nExecuting Parallel Matrix Multiplication")
+	//fmt.Println("\nExecuting Parallel Matrix Multiplication")
 	start = time.Now()
 	ParallelMat.Mul(mat1, mat2, &matres)
 	end = time.Now()
-	fmt.Printf("Parallel matrix multiplication done in %v s\n", end.Sub(start).Seconds())
+	fmt.Printf("\nParallel matrix multiplication           %v s\n", end.Sub(start).Seconds())
 	
 	//Validation
-	fmt.Println("\nChecking for errors in Parallel Matrix Multiplication using standard matrix multiplication")
+	//fmt.Println("\nChecking for errors in Parallel Matrix Multiplication using standard matrix multiplication")
 	if CheckResults(matres.Data,matValidate.Data) {
-		fmt.Println("\nNo errors occured\n")
+		//fmt.Println("\nNo errors occured\n")
 	} else {
-		fmt.Println("\nError detected\n")
+		fmt.Println("\nMultiplication Error detected\n")
 	}
 	
 	matres = Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}
 	InitMatrix(&matres) //matres.initMatrix() make it this way
 	mat1 = CopyMatrix(matA)
 	mat2 = CopyMatrix(matB)
-	fmt.Print("\nExecuting Strassen matrix multiplication\n")
+	//fmt.Print("\nExecuting Strassen matrix multiplication\n")
 	start = time.Now()
 	Strassen.Mul(mat1, mat2, &matres)
 	end = time.Now()
-	fmt.Printf("Strassen matrix multiplication done in %v s\n", end.Sub(start).Seconds())
+	fmt.Printf("Strassen matrix multiplication           %v s\n", end.Sub(start).Seconds())
 	
 	//Validation
-	fmt.Println("\nChecking for errors in Strassen Matrix Multiplication using standard matrix multiplication")
+	//fmt.Println("\nChecking for errors in Strassen Matrix Multiplication using standard matrix multiplication")
 	if CheckResults(matres.Data,matValidate.Data) {
-		fmt.Println("\nNo errors occured\n")
+		//fmt.Println("\nNo errors occured\n")
 	} else {
-		fmt.Println("\nError detected\n")
+		fmt.Println("\nMultiplication Error detected\n")
 	}
 	
 	matres = Matrix{mat1.Rows, mat2.Columns, make([][]int, mat1.Rows)}
 	InitMatrix(&matres) //matres.initMatrix() make it this way
 	mat1 = CopyMatrix(matA)
 	mat2 = CopyMatrix(matB)
-	fmt.Println("\nExecuting Parallel Strassen matrix multiplication")
+	//fmt.Println("\nExecuting Parallel Strassen matrix multiplication")
 	start = time.Now()
 	ParStrassen.Mul(mat1, mat2, &matres)
 	end = time.Now()
-	fmt.Printf("Parallel Strassen matrix multiplication done in %v s\n", end.Sub(start).Seconds())
+	fmt.Printf("Parallel Strassen matrix multiplication  %v s\n", end.Sub(start).Seconds())
 	
 	//Validation
-	fmt.Println("\nChecking for errors in Parallel Strassen Matrix Multiplication using standard matrix multiplication\n")
+	//fmt.Println("\nChecking for errors in Parallel Strassen Matrix Multiplication using standard matrix multiplication\n")
 	if CheckResults(matres.Data,matValidate.Data) {
-		fmt.Println("\nNo errors occured\n")
+		//fmt.Println("\nNo errors occured\n")
 	} else {
-		fmt.Println("\nError detected\n")
+		fmt.Println("\nMultiplication Error detected\n")
 	}
 }
 
